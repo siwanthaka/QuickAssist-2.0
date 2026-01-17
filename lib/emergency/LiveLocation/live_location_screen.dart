@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:quick_assist_2/database/app_database.dart';
+
 
 class LiveLocationScreen extends StatefulWidget {
   const LiveLocationScreen({super.key});
@@ -10,16 +12,30 @@ class LiveLocationScreen extends StatefulWidget {
 }
 
 class _LiveLocationScreenState extends State<LiveLocationScreen> {
-  // 🔴 CHANGE THIS NUMBER WHEN NEEDED
-  final String emergencyNumber = '0750818024';
-
   bool _alreadySent = false;
   String _statusText = 'Preparing to share location…';
+  String? _emergencyNumber;
 
   @override
   void initState() {
     super.initState();
-    _sendLiveLocation();
+    _loadAndSend();
+  }
+
+  Future<void> _loadAndSend() async {
+    // 0️⃣ Load number from DB
+    final number = await AppDatabase.getLiveLocationNumber();
+
+    if (number == null || number.isEmpty) {
+      setState(() {
+        _statusText =
+        'Live location number not set.\nPlease set it in Settings.';
+      });
+      return;
+    }
+
+    _emergencyNumber = number;
+    await _sendLiveLocation();
   }
 
   Future<void> _sendLiveLocation() async {
@@ -39,7 +55,7 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
     if (permission == LocationPermission.deniedForever) {
       setState(() {
         _statusText =
-        'Location permission permanently denied.\nEnable it in Settings.';
+        'Location permission permanently denied.\nEnable it in system settings.';
       });
       return;
     }
@@ -49,7 +65,7 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
     });
 
     // 2️⃣ Get GPS position
-    Position position = await Geolocator.getCurrentPosition(
+    final position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
 
@@ -67,10 +83,10 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
       _statusText = 'Opening SMS app…';
     });
 
-    // 4️⃣ Open SMS app with number + message
+    // 4️⃣ Open SMS app
     final Uri smsUri = Uri(
       scheme: 'sms',
-      path: emergencyNumber,
+      path: _emergencyNumber,
       queryParameters: {
         'body': message,
       },
@@ -125,10 +141,9 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Optional back button
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[850],
+                    backgroundColor: Colors.grey.shade800,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 12,
@@ -136,9 +151,7 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
                   ),
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Back'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),

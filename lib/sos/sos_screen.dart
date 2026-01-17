@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../database/app_database.dart';
+
 class SosScreen extends StatefulWidget {
   const SosScreen({super.key});
 
@@ -10,15 +12,35 @@ class SosScreen extends StatefulWidget {
 }
 
 class _SosScreenState extends State<SosScreen> {
-  final String sosNumber = '0750818024'; // 🔴 change if needed
+  String sosNumber = '';
   bool _hasCalled = false;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _startSosCall();
+    _loadNumberAndCall();
   }
 
+  /// 🔴 Load SOS number from SQLite then call
+  Future<void> _loadNumberAndCall() async {
+    final number = await AppDatabase.getSosNumber();
+
+    if (number == null || number.isEmpty) {
+      setState(() {
+        sosNumber = 'NOT SET';
+        _loading = false;
+      });
+      return;
+    }
+
+    sosNumber = number;
+    setState(() => _loading = false);
+
+    await _startSosCall();
+  }
+
+  /// 📞 Direct call logic
   Future<void> _startSosCall() async {
     if (_hasCalled) return;
     _hasCalled = true;
@@ -38,7 +60,9 @@ class _SosScreenState extends State<SosScreen> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Center(
-          child: Column(
+          child: _loading
+              ? const CircularProgressIndicator(color: Colors.red)
+              : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
@@ -58,7 +82,9 @@ class _SosScreenState extends State<SosScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Calling $sosNumber',
+                sosNumber == 'NOT SET'
+                    ? 'SOS number not configured'
+                    : 'Calling $sosNumber',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -75,12 +101,14 @@ class _SosScreenState extends State<SosScreen> {
               ),
               const SizedBox(height: 40),
 
-              // OPTIONAL CANCEL BUTTON
+              /// ❌ Cancel Button
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade800,
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pop(context);

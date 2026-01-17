@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+// Screens
+import 'edit_sos_number_screen.dart';
+import 'edit_live_location_number_screen.dart';
+import 'edit_personal_detail_screen.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -10,7 +15,10 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.6,
+          ),
         ),
         backgroundColor: Colors.black,
         elevation: 0,
@@ -25,7 +33,12 @@ class SettingsScreen extends StatelessWidget {
             title: 'Edit SOS Number',
             subtitle: 'Change emergency call number',
             onTap: () {
-              // TODO: Navigate to Edit SOS Number Screen (SQLite)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EditSosNumberScreen(),
+                ),
+              );
             },
           ),
 
@@ -34,19 +47,29 @@ class SettingsScreen extends StatelessWidget {
             title: 'Live Location Number',
             subtitle: 'Change SMS receiver number',
             onTap: () {
-              // TODO: Navigate to Live Location Number Screen (SQLite)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EditLiveLocationNumberScreen(),
+                ),
+              );
             },
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           _sectionTitle('Personal'),
 
           _settingTile(
             icon: Icons.person,
             title: 'Personal Details',
-            subtitle: 'Blood group, allergies, medical info',
+            subtitle: 'Edit emergency medical info',
             onTap: () {
-              // TODO: Navigate to Personal Details Screen (SQLite)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EditPersonalDetailScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -54,29 +77,28 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Section Title
+  // 🔹 Section header
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Text(
-        title,
+        title.toUpperCase(),
         style: const TextStyle(
           color: Colors.redAccent,
-          fontSize: 14,
-          letterSpacing: 1,
-          fontWeight: FontWeight.w600,
+          fontSize: 13,
+          letterSpacing: 1.2,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
   }
 
-  // 🔹 Setting Tile
+  // 🔹 Tile widget
   Widget _settingTile({
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    Color iconColor = Colors.redAccent,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -88,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.black,
-          child: Icon(icon, color: iconColor),
+          child: Icon(icon, color: Colors.redAccent),
         ),
         title: Text(
           title,

@@ -11,6 +11,8 @@ import '../sos/sos_screen.dart';
 import '../settings/settings_screen.dart';
 import '../radio/radio_screen.dart';
 import '../security/pin_dialog.dart';
+import '../personal/personal_details_screen.dart';
+
 
 
 // Widget
@@ -152,6 +154,18 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
+                  EmergencyCard(
+                    title: 'Personal Details',
+                    icon: Icons.person,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PersonalDetailsScreen(),
+                        ),
+                      );
+                    },
+                  ),
                   EmergencyCard(
                     title: 'Settings',
                     icon: Icons.settings,
