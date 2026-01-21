@@ -30,3 +30,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/first_aid/bleeding/
+    - assets/first_aid/fracture/
+    - assets/first_aid/chocking/
+    - assets/first_aid/fainting/
+    - assets/first_aid/burn/
